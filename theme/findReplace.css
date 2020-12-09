@@ -12,6 +12,7 @@
 		clear: both;
 		float: left;
 		margin-right: 15px;
+		margin-top: 2px;
 	}
 
 	& .ck-input-text {

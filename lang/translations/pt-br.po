@@ -5,11 +5,11 @@ msgstr "Localizar e Substituir"
 
 msgctxt "Label for the find field."
 msgid "Find"
-msgstr "Localizar :"
+msgstr "Localizar"
 
 msgctxt "Label for the Replace field and button."
 msgid "Replace"
-msgstr "Substituir:"
+msgstr "Substituir"
 
 msgctxt "Label for the Replace all button."
 msgid "Replace all"
@@ -32,8 +32,8 @@ msgid "Next"
 msgstr "Próximo"
 
 msgctxt "Label 'of'"
-msgid "of"
-msgstr "de"
+msgid " of "
+msgstr " de "
 
 msgctxt "Label when the text is not found"
 msgid "Not found"

@@ -269,7 +269,7 @@ export default class FindReplace extends Plugin {
 		this._scrollTo( currentMarker );
 		const t = this.editor.t;
 		if ( markers && markers.length && markers.length > 0 ) {
-			findField.infoText = this.currentSearchIndex + 1 + ' ' + t( 'of' ) + ' ' + markers.length;
+			findField.infoText = this.currentSearchIndex + 1 + t( ' of ' ) + markers.length;
 		} else {
 			findField.infoText = t( 'Not found' );
 		}
@@ -286,7 +286,7 @@ export default class FindReplace extends Plugin {
 			} );
 			const viewRange = editor.editing.mapper.toViewRange( marker.getRange() );
 			const domRange = editor.editing.view.domConverter.viewRangeToDom( viewRange );
-			scrollViewportToShowTarget( { target: domRange, viewportOffset: 300 } );
+			scrollViewportToShowTarget( { target: domRange, viewportOffset: 130 } );
 		}
 	}
 
