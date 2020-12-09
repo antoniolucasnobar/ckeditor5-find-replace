@@ -1,0 +1,36 @@
+@import "@ckeditor/ckeditor5-ui/theme/mixins/_rwd.css";
+
+.ck.ck-labeled-field-view > .ck.ck-label {
+	width: 20%;
+}
+.ck.ck-labeled-field-view {
+	margin-top: 10px;
+	margin-right: 100px;
+
+	& .ck-label {
+		text-align: right;
+		clear: both;
+		float: left;
+		margin-right: 15px;
+	}
+
+	& .ck-input-text {
+		  width: 75%;
+		  margin-right: 100px;
+		  margin-bottom: 18px;
+	  }
+
+    & .ck-labeled-field-view__status {
+		text-align: right;
+		margin-right: 5px;
+		margin-top: -18px;
+	}
+}
+
+.search-item {
+	background-color: rgb(157, 228, 133);
+
+	& .current {
+		background-color: rgb(228, 112, 209);
+	}
+}

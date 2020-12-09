@@ -1,0 +1,41 @@
+{
+  "name": "ckeditor5-find-replace",
+  "version": "0.1.1",
+  "description": "Find and Replace plugin for CKEditor 5.",
+  "author": {
+    "name": "Antonio Lucas Neres",
+    "email": "antoniolucasnobar@gmail.com"
+  },
+  "keywords": [
+    "ckeditor",
+    "ckeditor5",
+    "ckeditor 5",
+    "ckeditor5-feature",
+    "ckeditor5-plugin",
+    "find",
+    "search",
+    "replace"
+  ],
+  "dependencies": {
+  },
+  "peerDependencies": {
+    "@ckeditor/ckeditor5-core": "^23.1.0",
+    "@ckeditor/ckeditor5-ui": "^23.1.0"
+  },
+  "engines": {
+    "node": ">=12.0.0",
+    "npm": ">=5.7.1"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/antoniolucasnobar/ckeditor5-find-replace",
+  "bugs": "https://github.com/antoniolucasnobar/ckeditor5-find-replace/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/antoniolucasnobar/ckeditor5-find-replace.git"
+  },
+  "files": [
+    "lang",
+    "src",
+    "theme"
+  ]
+}

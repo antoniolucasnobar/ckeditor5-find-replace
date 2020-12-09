@@ -1,0 +1,49 @@
+
+msgctxt "Feature Name"
+msgid "Find and replace"
+msgstr "Localizar e Substituir"
+
+msgctxt "Label for the find field."
+msgid "Find"
+msgstr "Localizar :"
+
+msgctxt "Label for the Replace field and button."
+msgid "Replace"
+msgstr "Substituir:"
+
+msgctxt "Label for the Replace all button."
+msgid "Replace all"
+msgstr "Substituir tudo"
+
+msgctxt "Placeholder for the find field."
+msgid "Enter: next; Shift+Enter: previous"
+msgstr "Enter: próximo; Shift+Enter: anterior"
+
+msgctxt "Placeholder for the replace field."
+msgid "Enter: replace; Ctrl+Enter: all"
+msgstr "Enter: substituir; Ctrl+Enter: todos"
+
+msgctxt "Label for the previous button."
+msgid "Previous"
+msgstr "Anterior"
+
+msgctxt "Label for the next button."
+msgid "Next"
+msgstr "Próximo"
+
+msgctxt "Label 'of'"
+msgid "of"
+msgstr "de"
+
+msgctxt "Label when the text is not found"
+msgid "Not found"
+msgstr "Não encontrado"
+
+msgctxt "Label Replaced"
+msgid "Replaced "
+msgstr "Substituído "
+
+msgctxt "Label representing how many times it was replaced"
+msgid " times"
+msgstr " vezes"
+

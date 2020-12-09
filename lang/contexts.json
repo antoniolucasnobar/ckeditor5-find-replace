@@ -1,0 +1,14 @@
+{
+  	"Find and replace": "Feature Name",
+	"Find": "Label for the find field.",
+	"Replace": "Label for the Replace field and button.",
+	"Replace all": "Label for the Replace all button.",
+	"Placeholder for the find field.": "Enter: next; Shift+Enter: previous",
+    "Placeholder for the replace field." : "Enter: replace; Ctrl+Enter: all",
+	"Label for the previous button." : "Previous",
+	"Label for the next button." : "Next",
+  	"Label 'of'": "of",
+  	"Label when the text is not found": "Not found",
+  	"Label Replaced": "Replaced ",
+  	"Label representing how many times it was replaced": " times"
+}
