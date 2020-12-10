@@ -5,15 +5,16 @@
 }
 
 .ck.ck-labeled-field-view {
-& .ck-labeled-field-view__status {
-	  text-align: right;
-  }
+	& .ck-labeled-field-view__status {
+		text-align: right;
+		margin-right: 6px;
+	}
 }
 
 .search-item {
 	background-color: rgb(157, 228, 133);
 
-& .current {
-	  background-color: rgb(228, 112, 209);
-  }
+	& .current {
+		background-color: rgb(228, 112, 209);
+	}
 }
