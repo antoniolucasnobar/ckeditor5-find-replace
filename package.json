@@ -1,6 +1,6 @@
 {
   "name": "ckeditor5-find-replace",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Find and Replace plugin for CKEditor 5.",
   "author": {
     "name": "Antonio Lucas Neres",
