@@ -12,7 +12,7 @@ It supports:
 - use out of the editor (by execute findReplace command)
 
 We need translators! If you want to translate to your language, open a PR!
-PT and EN supported right now.
+PT, EN and CN supported right now.
 
 ## Installation
 ```shell script
@@ -38,7 +38,7 @@ DecoupledEditor.builtinPlugins = [
 ```
 
 ```javascript
-editor.execue('findReplace', {
+editor.execute('findReplace', {
     // text to find
     findText: '',
     // find prev or next , -1:prev,0:stay,1:next
