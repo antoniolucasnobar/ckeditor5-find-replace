@@ -69,7 +69,8 @@ export default class FindCommand extends Command {
 		return {
 			currentMarker,
 			markers,
-			currentSearchIndex:this.currentSearchIndex
+			currentIndex:this.currentSearchIndex,
+			total: markers.length,
 		};
     }
 
@@ -86,7 +87,7 @@ export default class FindCommand extends Command {
 				this._removeCurrentSearchMarker( writer );
 			} );
 			// refresh the items...
-			this._find( findText, 0 );
+			return this._find( findText, 0 );
 		}
 	}
 
@@ -106,6 +107,7 @@ export default class FindCommand extends Command {
 			this._resetStatus();
 
 		} );
+		return {}
 	}
 
 	_isSameSearch( searchText, markers ) {

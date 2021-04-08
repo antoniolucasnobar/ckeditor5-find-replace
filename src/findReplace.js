@@ -11,6 +11,7 @@ import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
 import KeystrokeHandler from '@ckeditor/ckeditor5-utils/src/keystrokehandler';
 import '../theme/findReplace.css';
 import searchIcon from '../theme/icons/loupe.svg';
+import FindCommand from "./findCommand";
 
 const SEARCH_MARKER = 'search';
 const CURRENT_SEARCH_MARKER = 'current_search';
@@ -52,6 +53,10 @@ export default class FindReplace extends Plugin {
 
 			return dropdown;
 		} );
+
+		// add command
+		const findCommand = new FindCommand(editor);
+        editor.commands.add( 'findReplace', findCommand );
 	}
 
 	/**
@@ -219,75 +224,19 @@ export default class FindReplace extends Plugin {
 		this.keystrokes.listenTo( object.element );
 	}
 
-	_isSameSearch( findField, markers ) {
-		const searchTerm = findField.fieldView.element.value;
-
-		const firstMarker = markers[ 0 ];
-		// search:searchTerm:counter
-		const term = ( firstMarker && firstMarker.name ) ? firstMarker.name.split( ':' )[ 1 ] : '';
-		const isSameSearch = term === searchTerm;
-		return isSameSearch;
-	}
-
 	_find( findField, increment ) {
-		const searchTerm = findField.fieldView.element.value;
-		const model = this.editor.model;
-		let markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
-
-		if ( this._isSameSearch( findField, markers ) ) {
-			// loop through the items
-			this.currentSearchIndex = ( this.currentSearchIndex + markers.length + increment ) % markers.length;
-		}
-		else {
-			this._resetStatus();
-			// Create a range spanning over the entire root content:
-			const range = model.createRangeIn( model.document.getRoot() );
-			let counter = 0;
-			model.change( writer => {
-				// Iterate over all items in this range:
-				for ( const value of range.getWalker() ) {
-					const textNode = value.item.textNode;
-					if ( textNode ) {
-						const text = value.item.data;
-						const indices = getIndicesOf( searchTerm, text, false );
-						for ( const index of indices ) {
-							const label = SEARCH_MARKER + ':' + searchTerm + ':' + counter++;
-							const startIndex = textNode.startOffset + index;
-							const start = writer.createPositionAt( textNode.parent, startIndex );
-							const end = writer.createPositionAt( textNode.parent, startIndex + searchTerm.length );
-							const range = writer.createRange( start, end );
-							writer.addMarker( label, { range, usingOperation: false } );
-						}
-					}
-				}
-				// update markers variable after search
-				markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
-			} );
-			this.currentSearchIndex = 0;
-		}
-		const currentMarker = markers[ this.currentSearchIndex ];
-		this._scrollTo( currentMarker );
+		const findText = findField.fieldView.element.value;
+		const {currentMarker,markers,currentIndex,total} = this.editor.execute('findReplace',{
+			findText,
+			increment
+		})
 		const t = this.editor.t;
 		if ( markers && markers.length && markers.length > 0 ) {
-			findField.infoText = this.currentSearchIndex + 1 + t( ' of ' ) + markers.length;
+			findField.infoText = currentIndex + 1 + t( ' of ' ) + total;
 		} else {
 			findField.infoText = t( 'Not found' );
 		}
 		return currentMarker;
-	}
-
-	_scrollTo( marker ) {
-		const editor = this.editor;
-		if ( marker ) {
-			editor.model.change( writer => {
-				this._removeCurrentSearchMarker( writer );
-				this.currentSearchMarker = writer.addMarker( CURRENT_SEARCH_MARKER,
-					{ range: marker.getRange(), usingOperation: false } );
-			} );
-			const viewRange = editor.editing.mapper.toViewRange( marker.getRange() );
-			const domRange = editor.editing.view.domConverter.viewRangeToDom( viewRange );
-			scrollViewportToShowTarget( { target: domRange, viewportOffset: 130 } );
-		}
 	}
 
 	_resetStatus() {
@@ -310,56 +259,18 @@ export default class FindReplace extends Plugin {
 		}
 	}
 
-	_replace( findField, replaceField ) {
-		const model = this.editor.model;
-		const markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
-		const sameSearch = this._isSameSearch( findField, markers );
-		const currentMarker = sameSearch ? markers[ this.currentSearchIndex ] : this._find( findField, 1 );
-		const replaceBy = replaceField.fieldView.element.value;
-		if ( currentMarker && currentMarker.getRange ) {
-			model.change( writer => {
-				model.insertContent( writer.createText( replaceBy ), currentMarker.getRange() );
-				writer.removeMarker( currentMarker );
-				this._removeCurrentSearchMarker( writer );
-			} );
-			// refresh the items...
-			this._find( findField, 0 );
-		}
+	_replace( findField, replaceField,replaceAll=false ) {
+		const findText = findField.fieldView.element.value;
+		const replaceText = replaceField.fieldView.element.value;
+		this.editor.execute('findReplace',{
+			findText,
+			replaceText,
+			replaceAll
+		})
+		this._find(findField,0)
 	}
 
 	_replaceAll( findField, replaceField ) {
-		const model = this.editor.model;
-		const t = this.editor.t;
-		// fires the find operation to make sure the search is loaded before replace
-		this._find( findField, 1 );
-		const replaceBy = replaceField.fieldView.element.value;
-		model.change( writer => {
-			const markers = model.markers.getMarkersGroup( SEARCH_MARKER );
-			let size = 0;
-			for ( const marker of markers ) {
-				model.insertContent( writer.createText( replaceBy ), marker.getRange() );
-				size++;
-			}
-			this._resetStatus();
-			replaceField.infoText = t( 'Replaced ' ) + size + t( ' times' );
-		} );
+		this._replace(findField,replaceField,true)
 	}
-}
-function getIndicesOf( searchStr, str, caseSensitive ) {
-	const searchStrLen = searchStr.length;
-	if ( searchStrLen === 0 ) {
-		return [];
-	}
-	let startIndex = 0;
-	let index;
-	const indices = [];
-	if ( !caseSensitive ) {
-		str = str.toLowerCase();
-		searchStr = searchStr.toLowerCase();
-	}
-	while ( ( index = str.indexOf( searchStr, startIndex ) ) > -1 ) {
-		indices.push( index );
-		startIndex = index + searchStrLen;
-	}
-	return indices;
 }
