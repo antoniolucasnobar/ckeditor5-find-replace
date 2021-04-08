@@ -9,6 +9,7 @@ It supports:
 - forward and backwards search (with visual and text indications of progress)
 - replace one or all occurrences
 - accessible (keyboard operation)
+- use out of the editor (by execute findReplace command)
 
 We need translators! If you want to translate to your language, open a PR!
 PT and EN supported right now.
@@ -35,6 +36,20 @@ DecoupledEditor.builtinPlugins = [
         ]
     }
 ```
+
+```javascript
+editor.execue('findReplace', {
+    // text to find
+    findText: '',
+    // find prev or next , -1:prev,0:stay,1:next
+    increment: 1 ,
+    // text to replace
+    replaceText: '',
+    // is replaceAll
+    replaceAll: false,
+})
+```
+
 
 Images of plugin:
 
