@@ -78,7 +78,7 @@ export default class FindCommand extends Command {
     _replace(findText,replaceText ) {
 		const model = this.editor.model;
 		const markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
-		const sameSearch = this._isSameSearch( findText, markers );
+		const sameSearch = isSameSearch( findText, markers );
 		const currentMarker = sameSearch ? markers[ this.currentSearchIndex ] : this._find( findText, 1 );
 
 		if ( currentMarker && currentMarker.getRange ) {
@@ -108,14 +108,6 @@ export default class FindCommand extends Command {
 
 		} );
 		return {}
-	}
-
-	_isSameSearch( searchText, markers ) {
-		const firstMarker = markers[ 0 ];
-		// search:searchTerm:counter
-		const term = ( firstMarker && firstMarker.name ) ? firstMarker.name.split( ':' )[ 1 ] : '';
-		const isSameSearch = term === searchText;
-		return isSameSearch;
 	}
 
     _scrollTo( marker ) {
