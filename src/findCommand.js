@@ -14,18 +14,18 @@ export default class FindCommand extends Command {
         super(editor);
         this.currentSearchIndex = 0;
     }
-    execute( options ) {
-		if ( !options.findText ) {
+    execute( userOptions ) {
+		if ( !userOptions.findText ) {
 			return;
 		}
-		const newOptions = { ...DEFAULT_OPTIONS, ...options };
-		if(newOptions.replaceText){
-        	if(newOptions.replaceAll){
-        		return this._replaceAll(newOptions.findText,newOptions.replaceText)
+		const options = { ...DEFAULT_OPTIONS, ...userOptions };
+		if ( options.replaceText ) {
+			if ( options.replaceAll ) {
+				return this._replaceAll( options.findText, options.replaceText );
 			}
-        	return this._replace(newOptions.findText,newOptions.replaceText)
+			return this._replace( options.findText, options.replaceText );
 		}
-        return this._find(newOptions.findText,newOptions.increment)
+		return this._find( options.findText, options.increment );
     }
 
     _find(searchText, increment){
