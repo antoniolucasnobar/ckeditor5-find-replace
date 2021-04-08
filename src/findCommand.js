@@ -1,6 +1,6 @@
 import { scrollViewportToShowTarget } from '@ckeditor/ckeditor5-utils/src/dom/scroll';
 import { Command } from 'ckeditor5/src/core';
-import { CURRENT_SEARCH_MARKER, isSameSearch, SEARCH_MARKER } from './utils';
+import { CURRENT_SEARCH_MARKER, isSameSearch, removeCurrentSearchMarker, removeSearchMarkers, SEARCH_MARKER } from './utils';
 
 const DEFAULT_OPTIONS = {
 	findText: '',
@@ -85,7 +85,7 @@ export default class FindCommand extends Command {
 			model.change( writer => {
 				model.insertContent( writer.createText( replaceText ), currentMarker.getRange() );
 				writer.removeMarker( currentMarker );
-				this._removeCurrentSearchMarker( writer );
+				removeCurrentSearchMarker( model, writer );
 			} );
 			// refresh the items...
 			return this._find( findText, 0 );
@@ -122,8 +122,8 @@ export default class FindCommand extends Command {
 		const editor = this.editor;
 		if ( marker ) {
 			editor.model.change( writer => {
-				this._removeCurrentSearchMarker( writer );
-				this.currentSearchMarker = writer.addMarker( CURRENT_SEARCH_MARKER,
+				removeCurrentSearchMarker( model, writer );
+				writer.addMarker( CURRENT_SEARCH_MARKER,
 					{ range: marker.getRange(), usingOperation: false } );
 			} );
 			const viewRange = editor.editing.mapper.toViewRange( marker.getRange() );
@@ -134,20 +134,7 @@ export default class FindCommand extends Command {
 
 	_resetStatus() {
 		this.currentSearchIndex = 0;
-		const model = this.editor.model;
-		model.change( writer => {
-			for ( const searchMarker of model.markers.getMarkersGroup( SEARCH_MARKER ) ) {
-				writer.removeMarker( searchMarker );
-			}
-			this._removeCurrentSearchMarker( writer );
-		} );
-	}
-
-	_removeCurrentSearchMarker( writer ) {
-		if ( this.currentSearchMarker ) {
-			writer.removeMarker( this.currentSearchMarker );
-			this.currentSearchMarker = undefined;
-		}
+		removeSearchMarkers( this.editor.model );
 	}
 }
 

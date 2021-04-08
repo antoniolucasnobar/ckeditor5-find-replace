@@ -1,4 +1,3 @@
-
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
 import ButtonView from '@ckeditor/ckeditor5-ui/src/button/buttonview';
 import { addToolbarToDropdown, createDropdown } from '@ckeditor/ckeditor5-ui/src/dropdown/utils';
@@ -6,15 +5,12 @@ import FocusCycler from '@ckeditor/ckeditor5-ui/src/focuscycler';
 import LabeledFieldView from '@ckeditor/ckeditor5-ui/src/labeledfield/labeledfieldview';
 import { createLabeledInputText } from '@ckeditor/ckeditor5-ui/src/labeledfield/utils';
 import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
-import { scrollViewportToShowTarget } from '@ckeditor/ckeditor5-utils/src/dom/scroll';
 import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
 import KeystrokeHandler from '@ckeditor/ckeditor5-utils/src/keystrokehandler';
 import '../theme/findReplace.css';
 import searchIcon from '../theme/icons/loupe.svg';
-import FindCommand from "./findCommand";
-
-const SEARCH_MARKER = 'search';
-const CURRENT_SEARCH_MARKER = 'current_search';
+import FindCommand from './findCommand';
+import { CURRENT_SEARCH_MARKER, removeSearchMarkers, SEARCH_MARKER } from './utils';
 
 export default class FindReplace extends Plugin {
 	/**
@@ -242,21 +238,7 @@ export default class FindReplace extends Plugin {
 	_resetStatus() {
 		this.findInput.infoText = undefined;
 		this.replaceInput.infoText = undefined;
-		this.currentSearchIndex = 0;
-		const model = this.editor.model;
-		model.change( writer => {
-			for ( const searchMarker of model.markers.getMarkersGroup( SEARCH_MARKER ) ) {
-				writer.removeMarker( searchMarker );
-			}
-			this._removeCurrentSearchMarker( writer );
-		} );
-	}
-
-	_removeCurrentSearchMarker( writer ) {
-		if ( this.currentSearchMarker ) {
-			writer.removeMarker( this.currentSearchMarker );
-			this.currentSearchMarker = undefined;
-		}
+		removeSearchMarkers( this.editor.model );
 	}
 
 	_replace( findField, replaceField,replaceAll=false ) {
