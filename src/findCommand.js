@@ -1,24 +1,25 @@
 import { scrollViewportToShowTarget } from '@ckeditor/ckeditor5-utils/src/dom/scroll';
 import { Command } from 'ckeditor5/src/core';
-import {CURRENT_SEARCH_MARKER, isSameSearch, SEARCH_MARKER} from "./utils";
+import { CURRENT_SEARCH_MARKER, isSameSearch, SEARCH_MARKER } from './utils';
 
+const DEFAULT_OPTIONS = {
+	findText: '',
+	increment: 1,
+	replaceText: '',
+	replaceAll: false
+};
 
 export default class FindCommand extends Command {
     constructor(editor) {
         super(editor);
         this.currentSearchIndex = 0;
-        this.defaultOptions = {
-        	findText: '',
-			increment: 1,
-			replaceText: '',
-			replaceAll: false
-		}
     }
     execute( options ) {
-        const editor = this.editor;
-        let newOptions = {...this.defaultOptions,...options}
-        if(!options.findText) return;
-        if(newOptions.replaceText){
+		if ( !options.findText ) {
+			return;
+		}
+		const newOptions = { ...DEFAULT_OPTIONS, ...options };
+		if(newOptions.replaceText){
         	if(newOptions.replaceAll){
         		return this._replaceAll(newOptions.findText,newOptions.replaceText)
 			}
@@ -93,7 +94,6 @@ export default class FindCommand extends Command {
 
 	_replaceAll( findText, replaceText ) {
 		const model = this.editor.model;
-		const t = this.editor.t;
 		// fires the find operation to make sure the search is loaded before replace
 		this._find( findText, 1 );
 
@@ -111,7 +111,6 @@ export default class FindCommand extends Command {
 	}
 
 	_isSameSearch( searchText, markers ) {
-
 		const firstMarker = markers[ 0 ];
 		// search:searchTerm:counter
 		const term = ( firstMarker && firstMarker.name ) ? firstMarker.name.split( ':' )[ 1 ] : '';
@@ -133,15 +132,7 @@ export default class FindCommand extends Command {
 		}
 	}
 
-	_removeCurrentSearchMarker( writer ) {
-		if ( this.currentSearchMarker ) {
-			writer.removeMarker( this.currentSearchMarker );
-			this.currentSearchMarker = undefined;
-		}
-	}
-
 	_resetStatus() {
-
 		this.currentSearchIndex = 0;
 		const model = this.editor.model;
 		model.change( writer => {
