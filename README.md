@@ -11,20 +11,22 @@ It supports:
 - accessible (keyboard operation)
 - use out of the editor (by execute findReplace command)
 
-We need translators! If you want to translate to your language, open a PR!
-PT, EN and CN supported right now.
+We need translators! If you want to translate to your language, open a PR! Supported so far:
+- pt-BR
+- en-US
+- zh-CN
 
 ## Installation
 ```shell script
 $ npm install ckeditor5-find-replace
 ```
 
-then you can use in your build like this
+To use it, configure your build like this
 
 ```javascript
 import FindReplace from 'ckeditor5-find-replace/src/findReplace';
 
-// it can be any CKEditor flavour
+// it can be any CKEditor editor. Decoupled is just an example
 DecoupledEditor.builtinPlugins = [
 //...
 	FindReplace,
@@ -38,6 +40,7 @@ DecoupledEditor.builtinPlugins = [
 ```
 
 ```javascript
+// you can use this feature programatically also:
 editor.execute('findReplace', {
     // text to find
     findText: '',
