@@ -90,6 +90,7 @@ export default class FindCommand extends Command {
 			// refresh the items...
 			return this._find( findText, 0 );
 		}
+		return {}
 	}
 
 	_replaceAll( findText, replaceText ) {
@@ -114,7 +115,7 @@ export default class FindCommand extends Command {
 		const editor = this.editor;
 		if ( marker ) {
 			editor.model.change( writer => {
-				removeCurrentSearchMarker( model, writer );
+				removeCurrentSearchMarker( editor.model, writer );
 				writer.addMarker( CURRENT_SEARCH_MARKER,
 					{ range: marker.getRange(), usingOperation: false } );
 			} );
