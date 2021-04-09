@@ -222,16 +222,11 @@ export default class FindReplace extends Plugin {
 
 	_find( findField, increment ) {
 		const findText = findField.fieldView.element.value;
-		const {currentMarker,markers,currentIndex,total} = this.editor.execute('findReplace',{
+		const {currentMarker,currentIndex,total} = this.editor.execute('findReplace',{
 			findText,
 			increment
 		})
-		const t = this.editor.t;
-		if ( markers && markers.length && markers.length > 0 ) {
-			findField.infoText = currentIndex + 1 + t( ' of ' ) + total;
-		} else {
-			findField.infoText = t( 'Not found' );
-		}
+		this._updateFindInfo(findField,currentIndex,total)
 		return currentMarker;
 	}
 
@@ -244,15 +239,24 @@ export default class FindReplace extends Plugin {
 	_replace( findField, replaceField,replaceAll=false ) {
 		const findText = findField.fieldView.element.value;
 		const replaceText = replaceField.fieldView.element.value;
-		this.editor.execute('findReplace',{
+		const {currentIndex,total} = this.editor.execute('findReplace',{
 			findText,
 			replaceText,
 			replaceAll
 		})
-		this._find(findField,0)
+		this._updateFindInfo(findField,currentIndex,total)
 	}
 
 	_replaceAll( findField, replaceField ) {
 		this._replace(findField,replaceField,true)
+	}
+
+	_updateFindInfo(findField,currentIndex=0,total=0){
+		const t = this.editor.t;
+		if ( total > 0 ) {
+			findField.infoText = currentIndex + 1 + t( ' of ' ) + total;
+		} else {
+			findField.infoText = t( 'Not found' );
+		}
 	}
 }
