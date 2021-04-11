@@ -79,7 +79,8 @@ export default class FindCommand extends Command {
 		const model = this.editor.model;
 		const markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
 		const sameSearch = isSameSearch( findText, markers );
-		const currentMarker = sameSearch ? markers[ this.currentSearchIndex ] : this._find( findText, 1 );
+		const { currentMarker } = sameSearch ? { 'currentMarker': markers[ this.currentSearchIndex ] }
+			: this._find( findText, 1 );
 
 		if ( currentMarker && currentMarker.getRange ) {
 			model.change( writer => {
@@ -98,17 +99,16 @@ export default class FindCommand extends Command {
 		// fires the find operation to make sure the search is loaded before replace
 		this._find( findText, 1 );
 
+		let total = 0;
 		model.change( writer => {
 			const markers = model.markers.getMarkersGroup( SEARCH_MARKER );
-			let size = 0;
 			for ( const marker of markers ) {
 				model.insertContent( writer.createText( replaceText ), marker.getRange() );
-				size++;
+				total++;
 			}
 			this._resetStatus();
-
 		} );
-		return {}
+		return { total }
 	}
 
     _scrollTo( marker ) {

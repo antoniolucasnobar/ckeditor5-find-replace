@@ -243,17 +243,28 @@ export default class FindReplace extends Plugin {
 			findText,
 			replaceText,
 			replaceAll
-		})
-		this._updateFindInfo(findField,currentIndex,total)
+		});
+		this._updateFindInfo( findField, currentIndex, total, replaceAll );
+		return { currentIndex, total };
 	}
 
 	_replaceAll( findField, replaceField ) {
-		this._replace(findField,replaceField,true)
+		const { total } = this._replace( findField, replaceField, true );
+		this._updateReplaceAllInfo( replaceField, total);
 	}
 
-	_updateFindInfo(findField,currentIndex=0,total=0){
-		const t = this.editor.t;
+	_updateReplaceAllInfo( replaceField, total = 0 ) {
 		if ( total > 0 ) {
+			const t = this.editor.t;
+			replaceField.infoText = t( 'Replaced ' ) + total + t( ' times' );
+			this.findInput.infoText = undefined;
+		}
+	}
+
+	_updateFindInfo( findField, currentIndex = 0, total = 0, replaceAll = false ) {
+		this.replaceInput.infoText = undefined;
+		const t = this.editor.t;
+		if ( !replaceAll && total > 0 ) {
 			findField.infoText = currentIndex + 1 + t( ' of ' ) + total;
 		} else {
 			findField.infoText = t( 'Not found' );
