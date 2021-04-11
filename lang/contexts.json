@@ -10,5 +10,6 @@
   	"Label 'of'": "of",
   	"Label when the text is not found": "Not found",
   	"Label Replaced": "Replaced ",
-  	"Label representing how many times it was replaced": " times"
+  	"Label representing how many times it was replaced": " times",
+	"Label Match Case Feature": "Match case"
 }

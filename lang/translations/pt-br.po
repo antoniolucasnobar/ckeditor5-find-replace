@@ -47,3 +47,8 @@ msgctxt "Label representing how many times it was replaced"
 msgid " times"
 msgstr " vezes"
 
+msgctxt "Label Match Case Feature"
+msgid "Match case"
+msgstr "Diferenciar maiúsculas e minúsculas"
+
+
