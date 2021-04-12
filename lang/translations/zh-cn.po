@@ -47,3 +47,7 @@ msgctxt "Label representing how many times it was replaced"
 msgid " times"
 msgstr " 次"
 
+msgctxt "Label Match Case Feature"
+msgid "Match case"
+msgstr "区分大小写"
+
