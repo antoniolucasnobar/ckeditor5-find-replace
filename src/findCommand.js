@@ -23,7 +23,7 @@ export default class FindCommand extends Command {
 			if ( options.replaceAll ) {
 				return this._replaceAll( options.findText, options.replaceText );
 			}
-			return this._replace( options.findText, options.replaceText );
+			return this._replace( options.findText, options.replaceText, options.increment );
 		}
 		return this._find( options.findText, options.increment );
     }
@@ -35,7 +35,7 @@ export default class FindCommand extends Command {
 
 		if ( isSameSearch( searchText, markers ) ) {
 			// loop through the items
-			this.currentSearchIndex = ( this.currentSearchIndex + markers.length + increment ) % markers.length;
+			this.currentSearchIndex = Math.abs( this.currentSearchIndex + markers.length + increment ) % markers.length;
 		}
 		else {
 			this._resetStatus();
@@ -75,23 +75,24 @@ export default class FindCommand extends Command {
 		};
     }
 
-    _replace(findText,replaceText ) {
+    _replace(findText, replaceText, increment = 0 ) {
 		const model = this.editor.model;
 		const markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
 		const sameSearch = isSameSearch( findText, markers );
-		const { currentMarker } = sameSearch ? { 'currentMarker': markers[ this.currentSearchIndex ] }
-			: this._find( findText, 1 );
-
-		if ( currentMarker && currentMarker.getRange ) {
+		const currentMarker = markers[ this.currentSearchIndex ];
+		if ( sameSearch && currentMarker && currentMarker.getRange ) {
 			model.change( writer => {
 				model.insertContent( writer.createText( replaceText ), currentMarker.getRange() );
 				writer.removeMarker( currentMarker );
 				removeCurrentSearchMarker( model, writer );
 			} );
+			//we need this as positive number will jump as replace reduce the number of occurrences of the searched term
+			increment = increment > 0 ? increment - 1 : increment;
 			// refresh the items...
-			return this._find( findText, 0 );
+			return this._find( findText, increment );
+		} else {
+			return this._find( findText, 1 );
 		}
-		return {}
 	}
 
 	_replaceAll( findText, replaceText ) {

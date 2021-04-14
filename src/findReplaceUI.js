@@ -25,7 +25,7 @@ export default class FindReplaceUI extends Plugin {
         super( editor );
     }
 
-        /**
+    /**
      * @inheritDoc
      */
     init() {
@@ -51,7 +51,6 @@ export default class FindReplaceUI extends Plugin {
 
     }
 
-
     /**
      * Creates a button view.
      *
@@ -64,17 +63,14 @@ export default class FindReplaceUI extends Plugin {
      */
     _createButton( label, eventName ) {
         const button = new ButtonView( this.locale );
-
         button.set( {
             label,
             withText: true,
             tooltip: false
         } );
-
         if ( eventName ) {
             button.delegate( 'execute' ).to( this, eventName );
         }
-
         return button;
     }
 
@@ -83,20 +79,37 @@ export default class FindReplaceUI extends Plugin {
         const t = editor.t;
         const button = dropdown.buttonView;
 
-        addToolbarToDropdown( dropdown, [ findField ] );
-        addToolbarToDropdown( dropdown, [ replaceField ] );
+        addToolbarToDropdown( dropdown, [findField] );
+        addToolbarToDropdown( dropdown, [replaceField] );
 
         const keystrokes = new KeystrokeHandler();
         keystrokes.listenTo( findField.fieldView.element );
-        const findItems = data => { this._find( findField, 1 ); data.preventDefault(); };
-        const findItemsBackwards = data => { this._find( findField, -1 ); data.preventDefault(); };
+        const findItems = data => {
+            this._find( findField, 1 );
+            data.preventDefault();
+        };
+        const findItemsBackwards = data => {
+            this._find( findField, -1 );
+            data.preventDefault();
+        };
         keystrokes.set( 'enter', findItems, { priority: 'highest' } );
         keystrokes.set( 'shift+enter', findItemsBackwards, { priority: 'highest' } );
 
         const keystrokesReplace = new KeystrokeHandler();
         keystrokesReplace.listenTo( replaceField.fieldView.element );
-        const replaceItems = data => { this._replace( findField, replaceField ); data.preventDefault(); };
-        const replaceAllItems = data => { this._replaceAll( findField, replaceField ); data.preventDefault(); };
+        const replaceItemsBackwards = data => {
+            this._replace( findField, replaceField, false, -1 );
+            data.preventDefault();
+        };
+        const replaceItems = data => {
+            this._replace( findField, replaceField );
+            data.preventDefault();
+        };
+        const replaceAllItems = data => {
+            this._replaceAll( findField, replaceField );
+            data.preventDefault();
+        };
+        keystrokesReplace.set( 'shift+enter', replaceItemsBackwards, { priority: 'highest' } );
         keystrokesReplace.set( 'enter', replaceItems, { priority: 'highest' } );
         keystrokesReplace.set( 'ctrl+enter', replaceAllItems, { priority: 'highest' } );
 
@@ -112,7 +125,7 @@ export default class FindReplaceUI extends Plugin {
         this.listenTo( this.replaceAllButton, 'execute', () => this._replaceAll( findField, replaceField ) );
 
         addToolbarToDropdown( dropdown,
-            [ 	this.replaceButton,
+            [this.replaceButton,
                 this.replaceAllButton,
                 this.previousButton,
                 this.nextButton
@@ -203,6 +216,7 @@ export default class FindReplaceUI extends Plugin {
         } );
 
         dropdown.on( 'cancel', () => closeUI() );
+
         function closeUI() {
             editor.editing.view.focus();
             dropdown.isOpen = false;
@@ -219,11 +233,11 @@ export default class FindReplaceUI extends Plugin {
 
     _find( findField, increment ) {
         const findText = findField.fieldView.element.value;
-        const {currentMarker,currentIndex,total} = this.editor.execute('findReplace',{
+        const { currentMarker, currentIndex, total } = this.editor.execute( 'findReplace', {
             findText,
             increment
-        })
-        this._updateFindInfo(findField,currentIndex,total)
+        } );
+        this._updateFindInfo( findField, currentIndex, total );
         return currentMarker;
     }
 
@@ -233,21 +247,22 @@ export default class FindReplaceUI extends Plugin {
         removeSearchMarkers( this.editor.model );
     }
 
-    _replace( findField, replaceField,replaceAll=false ) {
+    _replace( findField, replaceField, replaceAll = false, increment = 0 ) {
         const findText = findField.fieldView.element.value;
         const replaceText = replaceField.fieldView.element.value;
-        const {currentIndex,total} = this.editor.execute('findReplace',{
+        const { currentIndex, total } = this.editor.execute( 'findReplace', {
             findText,
             replaceText,
-            replaceAll
-        });
+            replaceAll,
+            increment
+        } );
         this._updateFindInfo( findField, currentIndex, total, replaceAll );
         return { currentIndex, total };
     }
 
     _replaceAll( findField, replaceField ) {
         const { total } = this._replace( findField, replaceField, true );
-        this._updateReplaceAllInfo( replaceField, total);
+        this._updateReplaceAllInfo( replaceField, total );
     }
 
     _updateReplaceAllInfo( replaceField, total = 0 ) {
