@@ -1,3 +1,7 @@
 .idea/
 package-lock.json
 ckeditor5-find-replace.iml
+node_modules/
+scripts/
+tests/
+
