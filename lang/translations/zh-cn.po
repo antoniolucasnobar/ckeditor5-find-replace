@@ -1,54 +1,53 @@
 
 msgctxt "Feature Name"
 msgid "Find and replace"
-msgstr "Localizar e Substituir"
+msgstr "查找/替换"
 
 msgctxt "Label for the find field."
 msgid "Find"
-msgstr "Localizar"
+msgstr "查找"
 
 msgctxt "Label for the Replace field and button."
 msgid "Replace"
-msgstr "Substituir"
+msgstr "替换"
 
 msgctxt "Label for the Replace all button."
 msgid "Replace all"
-msgstr "Substituir tudo"
+msgstr "替换全部"
 
 msgctxt "Placeholder for the find field."
 msgid "Enter: next; Shift+Enter: previous"
-msgstr "Enter: próximo; Shift+Enter: anterior"
+msgstr "Enter: 下一个; Shift+Enter: 上一个"
 
 msgctxt "Placeholder for the replace field."
 msgid "Enter: replace; Ctrl+Enter: all"
-msgstr "Enter: substituir; Ctrl+Enter: todos"
+msgstr "Enter: 替换; Ctrl+Enter: 替换全部"
 
 msgctxt "Label for the previous button."
 msgid "Previous"
-msgstr "Anterior"
+msgstr "上一个"
 
 msgctxt "Label for the next button."
 msgid "Next"
-msgstr "Próximo"
+msgstr "下一个"
 
 msgctxt "Label 'of'"
 msgid " of "
-msgstr " de "
+msgstr " / "
 
 msgctxt "Label when the text is not found"
 msgid "Not found"
-msgstr "Não encontrado"
+msgstr "未找到"
 
 msgctxt "Label Replaced"
 msgid "Replaced "
-msgstr "Substituído "
+msgstr "替换 "
 
 msgctxt "Label representing how many times it was replaced"
 msgid " times"
-msgstr " vezes"
+msgstr " 次"
 
 msgctxt "Label Match Case Feature"
 msgid "Match case"
-msgstr "Diferenciar maiúsculas e minúsculas"
-
+msgstr "区分大小写"
 
