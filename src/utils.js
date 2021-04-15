@@ -27,32 +27,19 @@ export function removeCurrentSearchMarker( model, writer ) {
 
 
 /**
- * 
- * @param {*} child model element
- * @param {string} searchText searchText
- * @param {number} startIndex the index of text2 to start search
- * @param {function} callBack the callBack func when complete a match
+ * return the whole text of the node without tags
+ * @param {*} node model node
+ * @returns {string} the whole text of the node
  */
- export function searchSameText(child,searchText,startIndex,callBack){
-    let matchIndex = startIndex;
-    let start = 0;
-    const text = child.data;
-    for(let i=0;i<text.length;i++){
-        // match over
-        if(!searchText[matchIndex]){
-            callBack && callBack(start,i);
-            matchIndex = 0;
-        }
-        if(text[i] === searchText[matchIndex]){
-            if(matchIndex == 0) start = i;
-            if(i<text.length-1){
-                matchIndex++;
-            }else{
-                return matchIndex;
-            }          
-        }else{
-            start = i;
-            matchIndex = 0;
+ export function getText(node){
+    let str = '';
+    if(node.is('text')){
+        str += node.data
+    }else{
+        const children = Array.from(node.getChildren());
+        for(const child of children){
+            str += getText(child)
         }
     }
+    return str
 }

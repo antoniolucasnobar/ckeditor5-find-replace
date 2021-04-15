@@ -1,6 +1,6 @@
 import { scrollViewportToShowTarget } from '@ckeditor/ckeditor5-utils/src/dom/scroll';
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import { CURRENT_SEARCH_MARKER, isSameSearch, removeCurrentSearchMarker, removeSearchMarkers, SEARCH_MARKER } from './utils';
+import { CURRENT_SEARCH_MARKER, isSameSearch, removeCurrentSearchMarker, removeSearchMarkers, SEARCH_MARKER,getText } from './utils';
 
 const DEFAULT_OPTIONS = {
 	findText: '',
@@ -46,28 +46,15 @@ export default class FindCommand extends Command {
 			model.change( writer => {
 				for(let element of root.getChildren()){
 
-					const children = Array.from(element.getChildren());
-					let startIndex = 0,start=null,end =null;
-					for(let child of children){
-						if(child.is('text')){
-							startIndex = searchSameText(child,searchText,startIndex,function(startIndex,endIndex){
-								console.log('matched',child.data,startIndex,endIndex,counter);
-								const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
-								if(!start){
-									start = writer.createPositionAt( child.parent, startIndex );
-								}
-								if(endIndex){
-									end = writer.createPositionAt( child.parent, endIndex );
-									const range = writer.createRange( start, end );
-									writer.addMarker( label, { range, usingOperation: false } )
-									start = null;
-									end = null;
-								}
-								
-							})
-						}
+					let text = getText(element);
+					const indices = getIndicesOf( searchText, text, false );
+					for ( const index of indices ) {
+						const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
+						const start = writer.createPositionAt( element, index );
+						const end = writer.createPositionAt( element, index + searchText.length );
+						const range = writer.createRange( start, end );
+						writer.addMarker( label, { range, usingOperation: false } );
 					}
-					// console.log(element);
 				}
 				// update markers variable after search
 				markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
