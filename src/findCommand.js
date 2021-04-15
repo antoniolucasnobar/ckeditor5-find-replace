@@ -39,25 +39,35 @@ export default class FindCommand extends Command {
 		}
 		else {
 			this._resetStatus();
+			const root = model.document.getRoot();
 			// Create a range spanning over the entire root content:
-            const range = model.createRangeIn( model.document.getRoot() );
+			
 			let counter = 0;
 			model.change( writer => {
-				// Iterate over all items in this range:
-				for ( const value of range.getWalker() ) {
-					const textNode = value.item.textNode;
-					if ( textNode ) {
-						const text = value.item.data;
-						const indices = getIndicesOf( searchText, text, false );
-						for ( const index of indices ) {
-							const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
-							const startIndex = textNode.startOffset + index;
-							const start = writer.createPositionAt( textNode.parent, startIndex );
-							const end = writer.createPositionAt( textNode.parent, startIndex + searchText.length );
-							const range = writer.createRange( start, end );
-							writer.addMarker( label, { range, usingOperation: false } );
+				for(let element of root.getChildren()){
+
+					const children = Array.from(element.getChildren());
+					let startIndex = 0,start=null,end =null;
+					for(let child of children){
+						if(child.is('text')){
+							startIndex = searchSameText(child,searchText,startIndex,function(startIndex,endIndex){
+								console.log('matched',child.data,startIndex,endIndex,counter);
+								const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
+								if(!start){
+									start = writer.createPositionAt( child.parent, startIndex );
+								}
+								if(endIndex){
+									end = writer.createPositionAt( child.parent, endIndex );
+									const range = writer.createRange( start, end );
+									writer.addMarker( label, { range, usingOperation: false } )
+									start = null;
+									end = null;
+								}
+								
+							})
 						}
 					}
+					// console.log(element);
 				}
 				// update markers variable after search
 				markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
