@@ -31,15 +31,15 @@ export function removeCurrentSearchMarker( model, writer ) {
  * @param {*} node model node
  * @returns {string} the whole text of the node
  */
- export function getText(node){
+ export function getText( node ) {
     let str = '';
-    if(node.is('text')){
-        str += node.data
-    }else{
+    if ( node.is( 'text' ) ) {
+        str += node.data;
+    } else {
         const children = Array.from(node.getChildren());
-        for(const child of children){
-            str += getText(child)
+        for ( const child of children ) {
+            str += getText( child );
         }
     }
-    return str
+    return str;
 }

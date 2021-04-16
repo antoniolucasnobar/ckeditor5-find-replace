@@ -1,6 +1,6 @@
 import { scrollViewportToShowTarget } from '@ckeditor/ckeditor5-utils/src/dom/scroll';
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import { CURRENT_SEARCH_MARKER, isSameSearch, removeCurrentSearchMarker, removeSearchMarkers, SEARCH_MARKER,getText } from './utils';
+import { CURRENT_SEARCH_MARKER, getText, isSameSearch, removeCurrentSearchMarker, removeSearchMarkers, SEARCH_MARKER } from './utils';
 
 const DEFAULT_OPTIONS = {
 	findText: '',
@@ -28,7 +28,7 @@ export default class FindCommand extends Command {
 		return this._find( options.findText, options.increment );
     }
 
-    _find(searchText, increment){
+	_find( searchText, increment ) {
     	const editor = this.editor;
     	const model = editor.model;
     	let markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
@@ -40,11 +40,10 @@ export default class FindCommand extends Command {
 		else {
 			this._resetStatus();
 			const root = model.document.getRoot();
-			// Create a range spanning over the entire root content:
-			
+
 			let counter = 0;
 			model.change( writer => {
-				for(let element of root.getChildren()){
+				for ( let element of root.getChildren() ) {
 
 					let text = getText(element);
 					const indices = getIndicesOf( searchText, text, false );
