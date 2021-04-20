@@ -1,21 +1,19 @@
 import Plugin from '@ckeditor/ckeditor5-core/src/plugin';
-import '../theme/findReplace.css';
 import FindReplaceEditing from './findReplaceEditing';
 import FindReplaceUI from './findReplaceUI';
 
 export default class FindReplace extends Plugin {
-	/**
+    /**
 	 * @inheritDoc
 	 */
-	static get pluginName() {
-		return 'FindReplace';
-	}
+    static get pluginName() {
+        return 'FindReplace';
+    }
 
-	/**
+    /**
 	 * @inheritDoc
 	 */
-	static get requires() {
-		return [ FindReplaceEditing, FindReplaceUI ];
-	}
-
+    static get requires() {
+        return [ FindReplaceEditing, FindReplaceUI ];
+    }
 }

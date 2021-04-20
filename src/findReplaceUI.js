@@ -21,13 +21,6 @@ export default class FindReplaceUI extends Plugin {
     /**
      * @inheritDoc
      */
-    constructor( editor ) {
-        super( editor );
-    }
-
-    /**
-     * @inheritDoc
-     */
     init() {
         const editor = this.editor;
 
@@ -48,7 +41,6 @@ export default class FindReplaceUI extends Plugin {
 
             return dropdown;
         } );
-
     }
 
     /**
@@ -59,7 +51,7 @@ export default class FindReplaceUI extends Plugin {
      * @param {String} icon The button icon.
      * @param {String} className The additional button CSS class name.
      * @param {String} [eventName] An event name that the `ButtonView#execute` event will be delegated to.
-     * @returns {module:ui/button/buttonview~ButtonView} The button view instance.
+     * @returns {ButtonView} The button view instance.
      */
     _createButton( label, eventName ) {
         const button = new ButtonView( this.locale );
@@ -79,8 +71,8 @@ export default class FindReplaceUI extends Plugin {
         const t = editor.t;
         const button = dropdown.buttonView;
 
-        addToolbarToDropdown( dropdown, [findField] );
-        addToolbarToDropdown( dropdown, [replaceField] );
+        addToolbarToDropdown( dropdown, [ findField ] );
+        addToolbarToDropdown( dropdown, [ replaceField ] );
 
         const keystrokes = new KeystrokeHandler();
         keystrokes.listenTo( findField.fieldView.element );
@@ -125,7 +117,7 @@ export default class FindReplaceUI extends Plugin {
         this.listenTo( this.replaceAllButton, 'execute', () => this._replaceAll( findField, replaceField ) );
 
         addToolbarToDropdown( dropdown,
-            [this.replaceButton,
+            [ this.replaceButton,
                 this.replaceAllButton,
                 this.previousButton,
                 this.nextButton
@@ -136,7 +128,7 @@ export default class FindReplaceUI extends Plugin {
          * Tracks information about DOM focus in the form.
          *
          * @readonly
-         * @member {module:utils/focustracker~FocusTracker}
+         * @member {FocusTracker}
          */
         this.focusTracker = new FocusTracker();
 
@@ -145,15 +137,15 @@ export default class FindReplaceUI extends Plugin {
          *
          * @readonly
          * @protected
-         * @member {module:ui/viewcollection~ViewCollection}
+         * @member {ViewCollection}
          */
         this._focusables = new ViewCollection();
 
         /**
-         * An instance of the {@link module:utils/keystrokehandler~KeystrokeHandler}.
+         * An instance of the {@link KeystrokeHandler}.
          *
          * @readonly
-         * @member {module:utils/keystrokehandler~KeystrokeHandler}
+         * @member {KeystrokeHandler}
          */
         this.keystrokes = new KeystrokeHandler();
 
@@ -162,7 +154,7 @@ export default class FindReplaceUI extends Plugin {
          *
          * @readonly
          * @protected
-         * @member {module:ui/focuscycler~FocusCycler}
+         * @member {FocusCycler}
          */
         this._focusCycler = new FocusCycler( {
             focusables: this._focusables,
