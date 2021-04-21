@@ -8,7 +8,7 @@ import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
 import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
 import FocusCycler from '@ckeditor/ckeditor5-ui/src/focuscycler';
 import searchIcon from '../theme/icons/loupe.svg';
-import { removeSearchMarkers } from './utils';
+import { changeAttributes, createLabeledCheckbox, removeSearchMarkers } from './utils';
 
 export default class FindReplaceUI extends Plugin {
     /**
@@ -73,6 +73,64 @@ export default class FindReplaceUI extends Plugin {
 
         addToolbarToDropdown( dropdown, [ findField ] );
         addToolbarToDropdown( dropdown, [ replaceField ] );
+
+
+
+        // const inputView = new InputTextView( this.locale );
+        // const bind = inputView.bindTemplate;
+        //
+        // inputView.setTemplate({
+        //         tag: 'input',
+        //         attributes: {
+        //             type: 'checkbox',
+        //             class: [
+        //                 'ck',
+        //                 'ck-input',
+        //                 bind.if( 'isFocused', 'ck-input_focused' ),
+        //                 bind.if( 'hasError', 'ck-error' )
+        //             ],
+        //             id: bind.to( 'id' ),
+        //             placeholder: bind.to( 'placeholder' ),
+        //             readonly: bind.to( 'isReadOnly' ),
+        //             'aria-invalid': bind.if( 'hasError', true ),
+        //             'aria-describedby': bind.to( 'ariaDescribedById' )
+        //         },
+        //         on: {
+        //             input: bind.to( 'input' ),
+        //             change: bind.to( inputView._updateIsEmpty.bind( inputView ) )
+        //         }
+        //     }
+        //
+        // );
+
+        this.foo = new LabeledFieldView( this.locale, createLabeledCheckbox );
+        // const inputView = foo.fieldView;
+        // // inputField.placeholder = t( 'Enter: next; Shift+Enter: previous' );
+        this.foo.label = t('Match case') ;
+        const label = this.foo.labelView;
+        const att = {
+            attributes: {
+                class: [
+                    'ck',
+                    'match-case-label'
+                ],
+            }
+        };
+        // const labelAttr =  { ...label.template['attributes'], ...att.attributes}
+        // att.attributes = labelAttr;
+        // label.setTemplate( {... label.template, ...att });
+        changeAttributes( label, att);
+
+
+        // this.matchCase = new SwitchButtonView( this.locale );
+        // this.matchCase.set( {
+        //     isToggleable: true,
+        //     withText: true,
+        //     label: t('Match case')
+        // } );
+        // this.listenTo( this.matchCase, 'execute', () => this.matchCase.set( 'isOn', !this.matchCase.isOn ) );
+
+        addToolbarToDropdown( dropdown, [ this.foo ] );
 
         const keystrokes = new KeystrokeHandler();
         keystrokes.listenTo( findField.fieldView.element );
@@ -224,10 +282,13 @@ export default class FindReplaceUI extends Plugin {
     }
 
     _find( findField, increment ) {
-        const findText = findField.fieldView.element.value;
+        console.info(this.foo.fieldView.element.checked)
+        const matchCase = this.foo.fieldView.element.checked;//this.matchCase.isOn;
+        const findText = findField.fieldView.element ? findField.fieldView.element.value : '';
         const { currentMarker, currentIndex, total } = this.editor.execute( 'findReplace', {
             findText,
-            increment
+            increment,
+            matchCase
         } );
         this._updateFindInfo( findField, currentIndex, total );
         return currentMarker;

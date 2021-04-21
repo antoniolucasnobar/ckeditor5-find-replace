@@ -1,3 +1,5 @@
+import InputTextView from '@ckeditor/ckeditor5-ui/src/inputtext/inputtextview';
+
 export const SEARCH_MARKER = 'search';
 export const CURRENT_SEARCH_MARKER = 'current_search';
 
@@ -41,4 +43,51 @@ export function getText( node ) {
         }
     }
     return str;
+}
+
+export function changeAttributes( fieldView, newAttributes ) {
+    const attr = { ...fieldView.template['attributes'], ...newAttributes.attributes}
+    newAttributes.attributes = attr;
+    const checkboxTemplate = {... fieldView.template, ...newAttributes }
+    console.info(checkboxTemplate)
+    fieldView.setTemplate(checkboxTemplate);
+}
+
+export function createLabeledCheckbox( labeledFieldView, viewUid, statusUid ) {
+    const inputView = new InputTextView( labeledFieldView.locale );
+    const bind = inputView.bindTemplate;
+    const novoTemp = {
+        attributes: {
+            type: 'checkbox',
+            class: [
+                'ck',
+                'ck-input',
+                bind.if( 'isFocused', 'ck-input_focused' ),
+                bind.if( 'hasError', 'ck-error' )
+            ],
+        }
+    };
+    changeAttributes( inputView, novoTemp);
+    // const attr = { ...inputView.template['attributes'], ...novoTemp.attributes}
+    // novoTemp.attributes = attr;
+    // const checkboxTemplate = {... inputView.template, ...novoTemp }
+    // console.info(checkboxTemplate)
+    // inputView.setTemplate(checkboxTemplate);
+    inputView.set( {
+        id: viewUid,
+        ariaDescribedById: statusUid
+    } );
+
+    inputView.bind( 'isReadOnly' ).to( labeledFieldView, 'isEnabled', value => !value );
+    inputView.bind( 'hasError' ).to( labeledFieldView, 'errorText', value => !!value );
+
+    inputView.on( 'input', () => {
+        // UX: Make the error text disappear and disable the error indicator as the user
+        // starts fixing the errors.
+        labeledFieldView.errorText = null;
+    } );
+
+    labeledFieldView.bind( 'isEmpty', 'isFocused', 'placeholder' ).to( inputView );
+
+    return inputView;
 }
