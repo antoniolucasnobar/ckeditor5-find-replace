@@ -8,7 +8,7 @@ import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
 import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
 import FocusCycler from '@ckeditor/ckeditor5-ui/src/focuscycler';
 import searchIcon from '../theme/icons/loupe.svg';
-import { removeSearchMarkers } from './utils';
+import { changeAttributes, createLabeledCheckbox, removeSearchMarkers } from './utils';
 
 export default class FindReplaceUI extends Plugin {
     /**
@@ -73,6 +73,20 @@ export default class FindReplaceUI extends Plugin {
 
         addToolbarToDropdown( dropdown, [ findField ] );
         addToolbarToDropdown( dropdown, [ replaceField ] );
+
+        this.matchCase = new LabeledFieldView( this.locale, createLabeledCheckbox );
+        this.matchCase.label = t( 'Match case' );
+        const label = this.matchCase.labelView;
+        const att = {
+            attributes: {
+                class: [
+                    'ck',
+                    'match-case-label'
+                ]
+            }
+        };
+        changeAttributes( label, att );
+        addToolbarToDropdown( dropdown, [ this.matchCase ] );
 
         const keystrokes = new KeystrokeHandler();
         keystrokes.listenTo( findField.fieldView.element );
@@ -170,6 +184,7 @@ export default class FindReplaceUI extends Plugin {
 
         this._addTabSupport( findField );
         this._addTabSupport( replaceField );
+        this._addTabSupport( this.matchCase );
         this._addTabSupport( this.replaceButton );
         this._addTabSupport( this.replaceAllButton );
         this._addTabSupport( this.previousButton );
@@ -224,13 +239,19 @@ export default class FindReplaceUI extends Plugin {
     }
 
     _find( findField, increment ) {
+        const matchCase = this.matchCase.fieldView.element.checked;
         const findText = findField.fieldView.element.value;
-        const { currentMarker, currentIndex, total } = this.editor.execute( 'findReplace', {
-            findText,
-            increment
-        } );
-        this._updateFindInfo( findField, currentIndex, total );
-        return currentMarker;
+        if ( findText ) {
+            const { currentMarker, currentIndex, total } = this.editor.execute( 'findReplace', {
+                findText,
+                increment,
+                matchCase
+            } );
+            this._updateFindInfo( findField, currentIndex, total );
+            return currentMarker;
+        } else {
+            this._resetStatus();
+        }
     }
 
     _resetStatus() {

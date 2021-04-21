@@ -1,13 +1,23 @@
 @import "@ckeditor/ckeditor5-ui/theme/mixins/_rwd.css";
 
-.ck.ck-labeled-field-view > .ck.ck-labeled-field-view__input-wrapper {
-	margin: 5px;
+.ck.ck-labeled-field-view.ck-labeled-field-view_placeholder {
+	width: 95%;
+	& .ck.ck-input-text {
+		  width: 100%;
+  	}
 }
 
+.match-case-label {
+	margin-left: 5px !important;
+	margin-right: 5px !important;
+	padding-top: 2px !important;
+}
 .ck.ck-labeled-field-view {
 	& .ck-labeled-field-view__status {
 		text-align: right;
-		margin-right: 6px;
+	}
+ 	& .ck.ck-labeled-field-view__input-wrapper {
+		margin: 5px 5px 0 5px;
 	}
 }
 

@@ -4,6 +4,7 @@ import { CURRENT_SEARCH_MARKER, getText, isSameSearch, removeCurrentSearchMarker
 
 const DEFAULT_OPTIONS = {
     findText: '',
+    matchCase: false,
     increment: 1,
     replaceText: '',
     replaceAll: false
@@ -13,27 +14,41 @@ export default class FindCommand extends Command {
     constructor( editor ) {
         super( editor );
         this.currentSearchIndex = 0;
+        this.lastUsedOptions = { ...DEFAULT_OPTIONS };
+        this.isSameSearch = false;
     }
+
     execute( userOptions ) {
         if ( !userOptions.findText ) {
             return;
         }
         const options = { ...DEFAULT_OPTIONS, ...userOptions };
+        // any other property is needed? I do not think so. check better way. maybe use lodash?
+        this.isSameSearch = options.matchCase === this.lastUsedOptions.matchCase && options.findText === this.lastUsedOptions.findText;
+        this.lastUsedOptions = { ...options };
         if ( options.replaceText ) {
             if ( options.replaceAll ) {
-                return this._replaceAll( options.findText, options.replaceText );
+                return this._replaceAll( options.findText, options.replaceText, options.matchCase );
             }
-            return this._replace( options.findText, options.replaceText, options.increment );
+            return this._replace( options.findText, options.replaceText, options.increment, options.matchCase );
         }
-        return this._find( options.findText, options.increment );
+        return this._find( options.findText, options.increment, options.matchCase );
     }
 
-    _find( searchText, increment ) {
+    /**
+     *
+     * @param searchText {string}
+     * @param increment {number}
+     * @param matchCase {boolean}
+     * @returns {{total: number, markers: any[], currentIndex: number, currentMarker: any}}
+     * @private
+     */
+    _find( searchText, increment, matchCase ) {
         const editor = this.editor;
         const model = editor.model;
         let markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
 
-        if ( isSameSearch( searchText, markers ) ) {
+        if ( this.isSameSearch && isSameSearch( searchText, markers ) ) {
             // loop through the items
             this.currentSearchIndex = Math.abs( this.currentSearchIndex + markers.length + increment ) % markers.length;
         }
@@ -45,7 +60,7 @@ export default class FindCommand extends Command {
             model.change( writer => {
                 for ( const element of root.getChildren() ) {
                     const text = getText( element );
-                    const indices = getIndicesOf( searchText, text, false );
+                    const indices = getIndicesOf( searchText, text, matchCase );
                     for ( const index of indices ) {
                         const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
                         const start = writer.createPositionAt( element, index );
@@ -70,10 +85,10 @@ export default class FindCommand extends Command {
         };
     }
 
-    _replace( findText, replaceText, increment = 0 ) {
+    _replace( findText, replaceText, increment = 0, matchCase ) {
         const model = this.editor.model;
         const markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
-        const sameSearch = isSameSearch( findText, markers );
+        const sameSearch = this.isSameSearch && isSameSearch( findText, markers );
         const currentMarker = markers[ this.currentSearchIndex ];
         if ( sameSearch && currentMarker && currentMarker.getRange ) {
             model.change( writer => {
@@ -84,16 +99,16 @@ export default class FindCommand extends Command {
             // we need this as positive number will jump as replace reduce the number of occurrences of the searched term
             increment = increment > 0 ? increment - 1 : increment;
             // refresh the items...
-            return this._find( findText, increment );
+            return this._find( findText, increment, matchCase );
         } else {
-            return this._find( findText, 1 );
+            return this._find( findText, 1, matchCase );
         }
     }
 
-    _replaceAll( findText, replaceText ) {
+    _replaceAll( findText, replaceText, matchCase ) {
         const model = this.editor.model;
         // fires the find operation to make sure the search is loaded before replace
-        this._find( findText, 1 );
+        this._find( findText, 1, matchCase );
 
         let total = 0;
         model.change( writer => {
