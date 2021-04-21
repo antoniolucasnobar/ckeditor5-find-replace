@@ -11,7 +11,6 @@ const DEFAULT_OPTIONS = {
 };
 
 export default class FindCommand extends Command {
-
     constructor( editor ) {
         super( editor );
         this.currentSearchIndex = 0;
