@@ -59,15 +59,18 @@ export default class FindCommand extends Command {
             let counter = 0;
             model.change( writer => {
                 for ( const element of root.getChildren() ) {
-                    const text = getText( element );
-                    const indices = getIndicesOf( searchText, text, matchCase );
-                    for ( const index of indices ) {
-                        const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
-                        const start = writer.createPositionAt( element, index );
-                        const end = writer.createPositionAt( element, index + searchText.length );
-                        const range = writer.createRange( start, end );
-                        writer.addMarker( label, { range, usingOperation: false } );
-                    }
+                    getText( element, ( textNode ) => {
+                        // get correct position of inline widget
+                        const { parent, startOffset, data } = textNode;
+                        const indices = getIndicesOf( searchText, data, matchCase );
+                        for ( const index of indices ) {
+                            const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
+                            const start = writer.createPositionAt( parent, index + startOffset );
+                            const end = writer.createPositionAt( parent, index + startOffset + searchText.length );
+                            const range = writer.createRange( start, end );
+                            writer.addMarker( label, { range, usingOperation: false } );
+                        }
+                    });
                 }
                 // update markers variable after search
                 markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
