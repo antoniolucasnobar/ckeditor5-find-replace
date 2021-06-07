@@ -8,7 +8,7 @@ import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
 import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
 import FocusCycler from '@ckeditor/ckeditor5-ui/src/focuscycler';
 import searchIcon from '../theme/icons/loupe.svg';
-import { changeAttributes, createLabeledCheckbox, removeSearchMarkers } from './utils';
+import { changeAttributes, createLabeledCheckbox, getText, removeSearchMarkers } from './utils';
 
 export default class FindReplaceUI extends Plugin {
     /**
@@ -48,8 +48,6 @@ export default class FindReplaceUI extends Plugin {
      *
      * @private
      * @param {String} label The button label.
-     * @param {String} icon The button icon.
-     * @param {String} className The additional button CSS class name.
      * @param {String} [eventName] An event name that the `ButtonView#execute` event will be delegated to.
      * @returns {ButtonView} The button view instance.
      */
@@ -200,27 +198,21 @@ export default class FindReplaceUI extends Plugin {
         editor.keystrokes.set( 'Ctrl+F', ( keyEvtData, cancel ) => {
             button.set( 'isOn', true );
             dropdown.set( 'isOpen', true );
-            findField.focus();
             cancel();
         } );
-
-        // Note: Use the low priority to make sure the following listener starts working after the
-        // default action of the drop-down is executed (i.e. the panel showed up). Otherwise, the
-        // invisible form/input cannot be focused/selected.
-        button.on( 'open', () => {
-            findField.focus();
-        }, { priority: 'low' } );
 
         // prevents the dropdown of closing on execute, since the user might want to keep searching or replacing text
         dropdown.off( 'execute' );
 
         // remove search markers when the search bar is closed
         dropdown.on( 'change:isOpen', () => {
-            if ( !dropdown.isOpen ) {
+            if ( dropdown.isOpen ) {
+                this._setSelectedTextAsSearchTerm( editor.model, findField );
+            } else {
                 this._resetStatus();
                 editor.editing.view.focus();
             }
-        } );
+        }, { priority: 'low' }  );
 
         dropdown.on( 'cancel', () => closeUI() );
 
@@ -228,6 +220,23 @@ export default class FindReplaceUI extends Plugin {
             editor.editing.view.focus();
             dropdown.isOpen = false;
         }
+    }
+
+    /**
+     *
+     * @private
+     * if the user selected some text when activates the search tool, this text is copied to the find field
+     * @param model editor Model
+     * @param findField field with text the user wants to search.
+     */
+    _setSelectedTextAsSearchTerm( model, findField ) {
+        const selection = model.document.selection;
+        const nodeSelection = model.getSelectedContent( selection );
+        const selectedText = getText( nodeSelection );
+        if ( selectedText ) {
+            findField.fieldView.set( 'value', selectedText );
+        }
+        findField.fieldView.select();
     }
 
     _addTabSupport( object ) {

@@ -7,8 +7,7 @@ export function isSameSearch( searchText, markers ) {
     const firstMarker = markers[ 0 ];
     // search:searchTerm:counter
     const term = ( firstMarker && firstMarker.name ) ? firstMarker.name.split( ':' )[ 1 ] : '';
-    const isSameSearch = term === searchText;
-    return isSameSearch;
+    return term === searchText;
 }
 
 export function removeSearchMarkers( model ) {
@@ -34,12 +33,11 @@ export function removeCurrentSearchMarker( model, writer ) {
  */
 export function getText( node, callback ) {
     let str = '';
-    if ( node.is( 'text' ) ) {
+    if ( node.is( 'text' ) || node.is( '$text' ) ) {
         str += node.data;
         typeof callback === 'function' && callback( node );
     } else {
-        const children = Array.from( node.getChildren() );
-        for ( const child of children ) {
+        for ( const child of node.getChildren() ) {
             str += getText( child, callback );
         }
     }
@@ -47,8 +45,7 @@ export function getText( node, callback ) {
 }
 
 export function changeAttributes( fieldView, newAttributes ) {
-    const attr = { ...fieldView.template.attributes, ...newAttributes.attributes };
-    newAttributes.attributes = attr;
+    newAttributes.attributes = { ...fieldView.template.attributes, ...newAttributes.attributes };
     const checkboxTemplate = { ... fieldView.template, ...newAttributes };
     fieldView.setTemplate( checkboxTemplate );
 }
