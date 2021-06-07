@@ -1,20 +1,20 @@
 CKEditor 5 Find and Replace feature
 ============================
 
-This package implements Find and Replace Text in CKEditor 5.
+This plugin implements Find and Replace Text in CKEditor 5.
 
-I looked everywhere and did not find an solution for CKEditor 5. So I did it one.
-
-It supports:
+Features:
 - forward and backwards search (with visual and text indications of progress)
-- replace one or all occurrences
+- replace one (also forward and backwards) or all occurrences 
 - accessible (keyboard operation)
 - use out of the editor (by execute findReplace command)
+- Match case: you decide if upper or lower case matters
+- selected text gets copied over to the find field
 
 We need translators! If you want to translate to your language, open a PR! Supported so far:
 - pt-BR
 - en-US
-- zh-CN
+- zh-CN (Thanks @YueHui)
 
 ## Installation
 ```shell script
@@ -50,6 +50,8 @@ editor.execute('findReplace', {
     replaceText: '',
     // is replaceAll
     replaceAll: false,
+    // lower or upper case letters matters? 
+    matchCase: false
 })
 ```
 
@@ -57,6 +59,8 @@ editor.execute('findReplace', {
 Images of plugin:
 
 ![Plugin](docs/plugin.png)
+
+![Selected Text](docs/selected-text.png)
 
 ![Search in action](docs/search.png)
 
