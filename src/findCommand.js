@@ -1,6 +1,6 @@
 import { scrollViewportToShowTarget } from '@ckeditor/ckeditor5-utils/src/dom/scroll';
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import { CURRENT_SEARCH_MARKER, getText, isSameSearch, removeCurrentSearchMarker, removeSearchMarkers, SEARCH_MARKER } from './utils';
+import { CURRENT_SEARCH_MARKER, isSameSearch, removeCurrentSearchMarker, removeSearchMarkers, SEARCH_MARKER } from './utils';
 
 const DEFAULT_OPTIONS = {
     findText: '',
@@ -54,15 +54,23 @@ export default class FindCommand extends Command {
         }
         else {
             this._resetStatus();
-            const root = model.document.getRoot();
-
+            // Create a range spanning over the entire root content:
+            const documentRange = model.createRangeIn( model.document.getRoot() );
             let counter = 0;
             model.change( writer => {
-                for ( const element of root.getChildren() ) {
-                    getText( element, ( textNode ) => {
-                        // get correct position of inline widget
-                        const { parent, startOffset, data } = textNode;
-                        const indices = getIndicesOf( searchText, data, matchCase );
+                let textNodeStartIndex = undefined;
+                let text = '';
+                for ( const value of documentRange.getWalker() ) {
+                    const textNode = value.item.textNode;
+                    if ( textNode && value.item.is( '$textProxy' ) ) {
+                        if ( !textNodeStartIndex ) {
+                            textNodeStartIndex = textNode;
+                        }
+                        text += value.item.data;
+                    } else if ( textNodeStartIndex ) {
+                        // current item is not a text node, but we already have some text to search
+                        const { parent, startOffset } = textNodeStartIndex;
+                        const indices = getIndicesOf( searchText, text, matchCase );
                         for ( const index of indices ) {
                             const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
                             const start = writer.createPositionAt( parent, index + startOffset );
@@ -70,7 +78,10 @@ export default class FindCommand extends Command {
                             const range = writer.createRange( start, end );
                             writer.addMarker( label, { range, usingOperation: false } );
                         }
-                    });
+                        // clears context to continue the search
+                        textNodeStartIndex = undefined;
+                        text = '';
+                    }
                 }
                 // update markers variable after search
                 markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );

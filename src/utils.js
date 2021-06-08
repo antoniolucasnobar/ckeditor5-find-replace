@@ -31,14 +31,13 @@ export function removeCurrentSearchMarker( model, writer ) {
  * @param {*} node model node
  * @returns {string} the whole text of the node
  */
-export function getText( node, callback ) {
+export function getText( node ) {
     let str = '';
     if ( node.is( 'text' ) || node.is( '$text' ) ) {
         str += node.data;
-        typeof callback === 'function' && callback( node );
     } else {
         for ( const child of node.getChildren() ) {
-            str += getText( child, callback );
+            str += getText( child );
         }
     }
     return str;
