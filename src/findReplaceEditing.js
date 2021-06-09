@@ -21,9 +21,9 @@ export default class FindReplaceEditing extends Plugin {
         const editor = this.editor;
 
         // conversion between model and view
-        editor.conversion.for( 'downcast' ).markerToHighlight(
+        editor.conversion.for( 'editingDowncast' ).markerToHighlight(
             { model: SEARCH_MARKER, view: () => ( { classes: 'search-item' } ) } );
-        editor.conversion.for( 'downcast' ).markerToHighlight(
+        editor.conversion.for( 'editingDowncast' ).markerToHighlight(
             { model: CURRENT_SEARCH_MARKER, view: () => ( { classes: 'current', priority: 99 } ) } );
 
         // add command
