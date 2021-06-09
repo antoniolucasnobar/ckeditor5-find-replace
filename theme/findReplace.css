@@ -18,6 +18,7 @@
 	}
  	& .ck.ck-labeled-field-view__input-wrapper {
 		margin: 5px 5px 0 5px;
+	  	align-items: center;
 	}
 }
 
