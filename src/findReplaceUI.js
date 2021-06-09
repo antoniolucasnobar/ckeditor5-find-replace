@@ -270,13 +270,15 @@ export default class FindReplaceUI extends Plugin {
     }
 
     _replace( findField, replaceField, replaceAll = false, increment = 0 ) {
+        const matchCase = this.matchCase.fieldView.element.checked;
         const findText = findField.fieldView.element.value;
         const replaceText = replaceField.fieldView.element.value;
         const { currentIndex, total } = this.editor.execute( 'findReplace', {
             findText,
             replaceText,
             replaceAll,
-            increment
+            increment,
+            matchCase
         } );
         this._updateFindInfo( findField, currentIndex, total, replaceAll );
         return { currentIndex, total };
