@@ -8,7 +8,7 @@ import FocusTracker from '@ckeditor/ckeditor5-utils/src/focustracker';
 import ViewCollection from '@ckeditor/ckeditor5-ui/src/viewcollection';
 import FocusCycler from '@ckeditor/ckeditor5-ui/src/focuscycler';
 import searchIcon from '../theme/icons/loupe.svg';
-import { changeAttributes, createLabeledCheckbox, getText, removeSearchMarkers } from './utils';
+import { changeAttributes, createLabeledCheckbox, getText, clearSearchMarkers } from './utils';
 
 export default class FindReplaceUI extends Plugin {
     /**
@@ -266,7 +266,7 @@ export default class FindReplaceUI extends Plugin {
     _resetStatus() {
         this.findInput.infoText = undefined;
         this.replaceInput.infoText = undefined;
-        removeSearchMarkers( this.editor.model );
+        clearSearchMarkers( this.editor.model );
     }
 
     _replace( findField, replaceField, replaceAll = false, increment = 0 ) {

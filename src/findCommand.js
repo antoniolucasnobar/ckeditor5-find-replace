@@ -1,6 +1,6 @@
 import { scrollViewportToShowTarget } from '@ckeditor/ckeditor5-utils/src/dom/scroll';
 import Command from '@ckeditor/ckeditor5-core/src/command';
-import { CURRENT_SEARCH_MARKER, isSameSearch, removeCurrentSearchMarker, removeSearchMarkers, SEARCH_MARKER } from './utils';
+import { CURRENT_SEARCH_MARKER, isSameSearch, removeCurrentSearchMarker, clearSearchMarkers, SEARCH_MARKER } from './utils';
 
 const DEFAULT_OPTIONS = {
     findText: '',
@@ -32,74 +32,83 @@ export default class FindCommand extends Command {
             }
             return this._replace( options.findText, options.replaceText, options.increment, options.matchCase );
         }
-        return this._find( options.findText, options.increment, options.matchCase );
+        return this._find( options );
     }
 
     /**
-     *
-     * @param searchText {string}
-     * @param increment {number}
-     * @param matchCase {boolean}
-     * @returns {{total: number, markers: any[], currentIndex: number, currentMarker: any}}
+     * @param options {{findText: string, matchCase: boolean, increment: number}}
+     * @returns {{total: number, markers: [], currentIndex: number, currentMarker: unknown}}
      * @private
      */
-    _find( searchText, increment, matchCase ) {
-        const editor = this.editor;
-        const model = editor.model;
-        let markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
+    _find( { findText, increment, matchCase } ) {
+        const model = this.editor.model;
+        let searchMarkers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
 
-        if ( this.isSameSearch && isSameSearch( searchText, markers ) ) {
-            // loop through the items
-            this.currentSearchIndex = Math.abs( this.currentSearchIndex + markers.length + increment ) % markers.length;
+        if ( this.isSameSearch && isSameSearch( findText, searchMarkers ) ) {
+            // go to next/previous item. loop through the items
+            this.currentSearchIndex = Math.abs( this.currentSearchIndex + searchMarkers.length + increment ) % searchMarkers.length;
+        } else {
+            searchMarkers = this.performSearch( findText, matchCase, searchMarkers );
         }
-        else {
-            this._resetStatus();
-            // Create a range spanning over the entire root content:
-            const documentRange = model.createRangeIn( model.document.getRoot() );
-            let counter = 0;
+
+        const currentMarker = searchMarkers[ this.currentSearchIndex ];
+        if ( currentMarker ) {
             model.change( writer => {
-                let textNodeStartIndex = undefined;
-                let text = '';
-                for ( const value of documentRange.getWalker() ) {
-                    const textNode = value.item.textNode;
-                    if ( textNode && value.item.is( '$textProxy' ) ) {
-                        if ( !textNodeStartIndex ) {
-                            textNodeStartIndex = textNode;
-                        }
-                        text += value.item.data;
-                    } else if ( textNodeStartIndex ) {
-                        // current item is not a text node, but we already have some text to search
-                        const { parent, startOffset } = textNodeStartIndex;
-                        const indices = getIndicesOf( searchText, text, matchCase );
-                        for ( const index of indices ) {
-                            const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
-                            const start = writer.createPositionAt( parent, index + startOffset );
-                            const end = writer.createPositionAt( parent, index + startOffset + searchText.length );
-                            const range = writer.createRange( start, end );
-                            writer.addMarker( label, { range, usingOperation: false } );
-                        }
-                        // clears context to continue the search
-                        textNodeStartIndex = undefined;
-                        text = '';
-                    }
-                }
-                // update markers variable after search
-                markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
+                removeCurrentSearchMarker( model, writer );
+                writer.addMarker( CURRENT_SEARCH_MARKER,
+                    { range: currentMarker.getRange(), usingOperation: false } );
             } );
-            this.currentSearchIndex = 0;
+            this._scrollTo( currentMarker );
         }
-
-        const currentMarker = markers[ this.currentSearchIndex ];
-        this._scrollTo( currentMarker );
         return {
             currentMarker,
-            markers,
+            markers: searchMarkers,
             currentIndex: this.currentSearchIndex,
-            total: markers.length
+            total: searchMarkers.length
         };
     }
 
-    _replace( findText, replaceText, increment = 0, matchCase ) {
+    performSearch( searchText, matchCase, markers ) {
+        const model = this.editor.model;
+        this._resetStatus();
+        // Create a range spanning over the entire root content:
+        const documentRange = model.createRangeIn( model.document.getRoot() );
+        let counter = 0;
+        model.change( writer => {
+            let textNodeStartIndex = undefined;
+            let text = '';
+            for ( const value of documentRange.getWalker() ) {
+                let item = value.item;
+                const textNode = item.textNode;
+                if ( textNode && item.is( '$textProxy' ) ) {
+                    if ( !textNodeStartIndex ) {
+                        textNodeStartIndex = textNode;
+                    }
+                    text += item.data;
+                } else if ( textNodeStartIndex ) {
+                    // as we found a non text node, now we perform the search and create highlight markers
+                    const indices = getIndicesOf( searchText, text, matchCase );
+                    const { parent, startOffset } = textNodeStartIndex;
+                    for ( const index of indices ) {
+                        const label = SEARCH_MARKER + ':' + searchText + ':' + counter++;
+                        const start = writer.createPositionAt( parent, index + startOffset );
+                        const end = writer.createPositionAt( parent, index + startOffset + searchText.length );
+                        const range = writer.createRange( start, end );
+                        writer.addMarker( label, { range, usingOperation: false } );
+                    }
+                    // clears context to continue the search
+                    textNodeStartIndex = undefined;
+                    text = '';
+                }
+            }
+            // update markers variable after search
+            markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
+        } );
+        this.currentSearchIndex = 0;
+        return markers;
+    }
+
+    _replace( findText, replaceText, increment , matchCase ) {
         const model = this.editor.model;
         const markers = Array.from( model.markers.getMarkersGroup( SEARCH_MARKER ) );
         const sameSearch = this.isSameSearch && isSameSearch( findText, markers );
@@ -108,28 +117,24 @@ export default class FindCommand extends Command {
             model.change( writer => {
                 model.insertContent( writer.createText( replaceText ), currentMarker.getRange() );
                 writer.removeMarker( currentMarker );
-                removeCurrentSearchMarker( model, writer );
             } );
-            // we need this as positive number will jump as replace reduce the number of occurrences of the searched term
+            // at each replacement, we have one less to search, so we need to decrease 1
             increment = increment > 0 ? increment - 1 : increment;
             // refresh the items...
-            return this._find( findText, increment, matchCase );
+            return this._find( { findText, increment, matchCase }  );
         } else {
-            return this._find( findText, 1, matchCase );
+            return this._find( { findText, increment: 1, matchCase } );
         }
     }
 
     _replaceAll( findText, replaceText, matchCase ) {
         const model = this.editor.model;
-        // fires the find operation to make sure the search is loaded before replace
-        this._find( findText, 1, matchCase );
-
-        let total = 0;
+        // fires the find operation to make sure we have markers replace all
+        const { markers } = this._find( { findText, increment: 1, matchCase } );
+        const total = markers.length;
         model.change( writer => {
-            const markers = model.markers.getMarkersGroup( SEARCH_MARKER );
             for ( const marker of markers ) {
                 model.insertContent( writer.createText( replaceText ), marker.getRange() );
-                total++;
             }
             this._resetStatus();
         } );
@@ -139,11 +144,6 @@ export default class FindCommand extends Command {
     _scrollTo( marker ) {
         const editor = this.editor;
         if ( marker ) {
-            editor.model.change( writer => {
-                removeCurrentSearchMarker( editor.model, writer );
-                writer.addMarker( CURRENT_SEARCH_MARKER,
-                    { range: marker.getRange(), usingOperation: false } );
-            } );
             const viewRange = editor.editing.mapper.toViewRange( marker.getRange() );
             const domRange = editor.editing.view.domConverter.viewRangeToDom( viewRange );
             scrollViewportToShowTarget( { target: domRange, viewportOffset: 130 } );
@@ -152,7 +152,7 @@ export default class FindCommand extends Command {
 
     _resetStatus() {
         this.currentSearchIndex = 0;
-        removeSearchMarkers( this.editor.model );
+        clearSearchMarkers( this.editor.model );
     }
 }
 

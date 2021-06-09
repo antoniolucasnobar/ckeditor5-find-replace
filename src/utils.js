@@ -10,7 +10,7 @@ export function isSameSearch( searchText, markers ) {
     return term === searchText;
 }
 
-export function removeSearchMarkers( model ) {
+export function clearSearchMarkers( model ) {
     model.change( writer => {
         for ( const searchMarker of model.markers.getMarkersGroup( SEARCH_MARKER ) ) {
             writer.removeMarker( searchMarker );
