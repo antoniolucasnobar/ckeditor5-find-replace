@@ -1,6 +1,13 @@
 CKEditor 5 Find and Replace feature
 ============================
 
+When I started this project, there was no such plugin for search and replace items. Now, I recommend you to use the official plugin: https://ckeditor.com/docs/ckeditor5/latest/features/find-and-replace.html
+
+I would like to thank everyone that helped me in this project!
+
+Documentation
+============================
+
 This plugin implements Find and Replace Text in CKEditor 5.
 
 Features:
